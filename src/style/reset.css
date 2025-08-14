@@ -1,0 +1,7 @@
+@layer base {
+  *,
+  *::before,
+  *::after {
+    @apply font-poppins;
+  }
+}
