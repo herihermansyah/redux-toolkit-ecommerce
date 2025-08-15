@@ -1,80 +1,104 @@
+// src/features/auth/authSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { AuthState, User } from "./types";
-import { loginAPI, logoutAPI } from "./authAPI";
-import type { RootState } from "../../app/store";
-
-// asyncThunk login
-export const login = createAsyncThunk<
-  { user: User; token: string }, // return type
-  string, // argument type (email)
-  { rejectValue: string } // reject type
->("auth/login", async (email, { rejectWithValue }) => {
-  try {
-    const response = await loginAPI(email);
-    return response; // { user, token }
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return rejectWithValue(error.message);
-    }
-    return rejectWithValue("Login failed");
-  }
-});
-
-// asyncThunk logout
-export const logout = createAsyncThunk("auth/logout", async () => {
-  await logoutAPI();
-});
+import type { AuthState, LoginPayload, User, SignupPayload } from "./types";
+import { loginAPI, logoutAPI, signupAPI } from "./authAPI";
 
 const initialState: AuthState = {
   user: null,
   token: null,
-  status: "idle",
+  loading: false,
   error: null,
 };
+
+// LOGIN
+export const login = createAsyncThunk(
+  "auth/login",
+  async (payload: LoginPayload, { rejectWithValue }) => {
+    try {
+      const res = await loginAPI(payload);
+      return res;
+    } catch (err: unknown) {
+      if (err instanceof Error) return rejectWithValue(err.message);
+      return rejectWithValue("Login gagal");
+    }
+  }
+);
+
+// SIGNUP
+export const signup = createAsyncThunk(
+  "auth/signup",
+  async (payload: SignupPayload, { rejectWithValue }) => {
+    try {
+      const res = await signupAPI(payload);
+      return res; // { user, token }
+    } catch (err: unknown) {
+      if (err instanceof Error) return rejectWithValue(err.message);
+      return rejectWithValue("Signup gagal");
+    }
+  }
+);
+
+// LOGOUT
+export const logout = createAsyncThunk("auth/logout", async () => {
+  await logoutAPI();
+});
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
-    },
-    clearAuth: (state) => {
-      state.user = null;
-      state.token = null;
+    clearError(state) {
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
+      // LOGIN
       .addCase(login.pending, (state) => {
-        state.status = "loading";
+        state.loading = true;
         state.error = null;
       })
       .addCase(
         login.fulfilled,
         (state, action: PayloadAction<{ user: User; token: string }>) => {
-          state.status = "succeeded";
+          state.loading = false;
           state.user = action.payload.user;
           state.token = action.payload.token;
         }
       )
       .addCase(login.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload ?? "Login failed";
+        state.loading = false;
+        state.error = action.payload as string;
       })
+
+      // SIGNUP
+      .addCase(signup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        signup.fulfilled,
+        (state, action: PayloadAction<{ user: User; token: string }>) => {
+          state.loading = false;
+          state.user = action.payload.user;
+          state.token = action.payload.token;
+        }
+      )
+      .addCase(signup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      // LOGOUT
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.token = null;
-        state.status = "idle";
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
       });
   },
 });
 
-export const { setUser, clearAuth } = authSlice.actions;
-
-// selectors
-export const selectCurrentUser = (state: RootState) => state.auth.user;
-export const selectAuthStatus = (state: RootState) => state.auth.status;
-
+export const { clearError } = authSlice.actions;
 export default authSlice.reducer;

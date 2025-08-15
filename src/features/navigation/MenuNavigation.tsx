@@ -40,7 +40,7 @@ const menuIcon: IconType[] = [
   {
     id: 5,
     name: "Profile",
-    path: "profile",
+    path: "login",
     iconClass: "material-symbols-outlined",
     iconName: "person",
   },
