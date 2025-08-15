@@ -1,11 +1,26 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import MenuNavigation from "../features/navigation/MenuNavigation";
-import Search from "../features/navigation/Search";
+import Search from "../features/navigation/SearchNavigation";
+import Loader from "../components/ui/Loader";
+import { LoaderPinwheel as LoaderIcon } from "lucide-react";
 
 export default function AppLayouts() {
+  const location = useLocation();
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [location]);
+
   return (
     <div className="flex flex-col min-h-screen justify-between">
-      <header className="sticky top-0 z-50  py-2 shadow-md bg-white">
+      {isLoading && <Loader icon={<LoaderIcon />} size={50} fullscreen />}
+      <header className="sticky top-0 z-50 py-2 shadow-md bg-white">
         <Search />
       </header>
       <main className="flex-1">
