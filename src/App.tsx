@@ -11,7 +11,7 @@ import SignupPage from "./features/auth/pages/SignupPage";
 // Tambahan
 import ProductDetailPage from "./pages/ProductDetail";
 import CartPage from "./pages/CartPage";
-import PagePesan from "./pages/PagePesan";
+import PageCheckout from "./pages/PageCheckout";
 
 export default function App() {
   return (
@@ -33,7 +33,7 @@ export default function App() {
         <Route path="signup" element={<SignupPage />} />
 
         {/* tambahan */}
-        <Route path="pesan" element={<PagePesan />} />
+        <Route path="checkout" element={<PageCheckout />} />
       </Route>
     </Routes>
   );
