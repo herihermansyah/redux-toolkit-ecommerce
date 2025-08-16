@@ -1,65 +1,58 @@
-import { createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Product, ProductState } from './types';
-import { fetchProductsAPI, fetchProductByIdAPI } from './productAPI';
-import type { RootState } from '../../app/store';
+// src/features/product/productSlice.ts
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import type { RootState } from "../../app/store";
 
-export const fetchProducts = createAsyncThunk<Product[]>('product/fetchProducts', async () => {
-  return await fetchProductsAPI();
-});
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  description: string;
+  category: string;
+}
 
-export const fetchProductById = createAsyncThunk<Product, string>('product/fetchProductById', async (id) => {
-  return await fetchProductByIdAPI(id);
-});
+interface ProductState {
+  products: Product[];
+  filteredProducts: Product[];
+}
 
 const initialState: ProductState = {
   products: [],
-  selectedProduct: null,
-  status: 'idle',
-  error: null,
+  filteredProducts: [],
 };
 
+// Slice
 const productSlice = createSlice({
-  name: 'product',
+  name: "product",
   initialState,
   reducers: {
-    clearSelectedProduct: (state) => {
-      state.selectedProduct = null;
+    setProducts: (state, action: PayloadAction<Product[]>) => {
+      state.products = action.payload;
+      state.filteredProducts = action.payload;
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      // fetch all products
-      .addCase(fetchProducts.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(fetchProducts.fulfilled, (state, action: PayloadAction<Product[]>) => {
-        state.status = 'succeeded';
-        state.products = action.payload;
-      })
-      .addCase(fetchProducts.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message || 'Failed to fetch products';
-      })
-      // fetch product detail
-      .addCase(fetchProductById.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(fetchProductById.fulfilled, (state, action: PayloadAction<Product>) => {
-        state.status = 'succeeded';
-        state.selectedProduct = action.payload;
-      })
-      .addCase(fetchProductById.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message || 'Failed to fetch product';
-      });
+    filterByCategory: (state, action: PayloadAction<string>) => {
+      if (action.payload === "all") {
+        state.filteredProducts = state.products;
+      } else {
+        state.filteredProducts = state.products.filter(
+          (p) => p.category === action.payload
+        );
+      }
+    },
+    sortByPrice: (state, action: PayloadAction<"asc" | "desc">) => {
+      state.filteredProducts.sort((a, b) =>
+        action.payload === "asc" ? a.price - b.price : b.price - a.price
+      );
+    },
   },
 });
 
-export const { clearSelectedProduct } = productSlice.actions;
-export const selectProducts = (state: RootState) => state.product.products;
-export const selectSelectedProduct = (state: RootState) => state.product.selectedProduct;
+export const { setProducts, filterByCategory, sortByPrice } =
+  productSlice.actions;
+
+// Selector
+export const selectFilteredProducts = (state: RootState) =>
+  state.product.filteredProducts;
 
 export default productSlice.reducer;

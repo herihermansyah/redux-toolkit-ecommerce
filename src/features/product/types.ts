@@ -1,5 +1,3 @@
-// src/features/product/types.ts
-
 export interface ProductCategory {
   id: string;
   name: string;
@@ -25,4 +23,5 @@ export interface ProductState {
   selectedProduct: Product | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  loading: boolean;
 }

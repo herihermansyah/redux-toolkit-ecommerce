@@ -1,13 +1,11 @@
-// src/features/cart/types.ts
 export interface CartItem {
-  id: string;       // ID produk
-  name: string;     // nama produk
-  price: number;    // harga per item
-  quantity: number; // jumlah item di keranjang
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
 }
 
 export interface CartState {
   items: CartItem[];
-  totalQuantity: number;
-  totalPrice: number;
 }

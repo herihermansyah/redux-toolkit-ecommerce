@@ -1,4 +1,3 @@
-// src/features/product/productAPI.ts
 import type { Product } from "./types";
 
 export const fetchProductsAPI = async (): Promise<Product[]> => {

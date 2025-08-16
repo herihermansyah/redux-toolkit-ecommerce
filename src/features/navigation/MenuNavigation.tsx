@@ -33,7 +33,7 @@ const menuIcon: IconType[] = [
   {
     id: 4,
     name: "Wishlist",
-    path: "wishlist",
+    path: "cart",
     iconClass: "material-symbols-outlined",
     iconName: "favorite",
   },
