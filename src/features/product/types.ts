@@ -1,27 +1,23 @@
-export interface ProductCategory {
-  id: string;
-  name: string;
-  created_at: string;
-  updated_at: string;
-}
+  // src/features/product/types.ts
+  export interface Rating {
+    rate: number;
+    count: number;
+  }
 
-export interface Product {
-  id: string;
-  product_category_id: string;
-  name: string;
-  price: number;
-  image: string;
-  description: string;
-  manufacturer: string;
-  created_at: string;
-  updated_at: string;
-  product_category: ProductCategory;
-}
+  export interface Product {
+    id: number;
+    title: string;
+    price: number;
+    description: string;
+    category: string;
+    image: string;
+    rating: Rating;
+  }
 
-export interface ProductState {
-  products: Product[];
-  selectedProduct: Product | null;
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
-  loading: boolean;
-}
+  export interface ProductState {
+    products: Product[];
+    selectedProduct: Product | null;
+    status: "idle" | "loading" | "succeeded" | "failed";
+    error: string | null;
+    loading: boolean;
+  }

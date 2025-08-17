@@ -1,3 +1,4 @@
+// src/pages/ProductDetail.tsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,14 +27,12 @@ const ProductDetail: React.FC = () => {
     if (status === "idle") {
       dispatch(fetchProducts());
     } else if (status === "succeeded") {
-      const found = products.find((p) => p.id === id);
+      const found = products.find((p) => p.id === Number(id));
       setProduct(found || null);
 
       if (found) {
         const related = products.filter(
-          (p) =>
-            p.product_category.id === found.product_category.id &&
-            p.id !== found.id
+          (p) => p.category === found.category && p.id !== found.id
         );
         setRelatedProducts(related);
       }
@@ -53,14 +52,13 @@ const ProductDetail: React.FC = () => {
     dispatch(
       addToCart({
         id: product.id,
-        name: product.name,
+        name: product.title,
         price: product.price,
         image: product.image,
         quantity,
       })
     );
     setSuccessMessage("Produk berhasil ditambahkan ke keranjang");
-    // navigate("/cart");
     setTimeout(() => {
       navigate("/cart");
     }, 1000);
@@ -70,32 +68,30 @@ const ProductDetail: React.FC = () => {
     <div className="container mx-auto p-6">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Image */}
-        <div className="flex-1 w-full lg:max-w-lg h-96 overflow-hidden rounded-lg shadow-lg">
+        <div className="flex-1 w-full lg:max-w-lg h-64 overflow-hidden rounded-lg shadow-lg flex justify-center items-center bg-white">
           <img
             src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            alt={product.title}
+            className="max-h-60 w-full object-contain hover:scale-105 transition-transform duration-300"
           />
         </div>
 
         {/* Details */}
         <div className="flex-1 flex flex-col gap-4">
-          <h1 className="text-3xl font-bold text-gray-800">{product.name}</h1>
+          <h1 className="text-3xl font-bold text-gray-800">{product.title}</h1>
           <p className="text-lg text-indigo-600 font-semibold">
             ${product.price.toLocaleString()}
           </p>
-          <p className="text-sm text-gray-500">
-            Category: {product.product_category.name}
-          </p>
-          <p className="text-sm text-gray-500">
-            Manufacturer: {product.manufacturer}
-          </p>
-          <p className="text-sm text-gray-500">
-            Created at: {new Date(product.created_at).toLocaleDateString()}
-          </p>
-          <p className="text-sm text-gray-500">
-            Updated at: {new Date(product.updated_at).toLocaleDateString()}
-          </p>
+          <p className="text-sm text-gray-500">Category: {product.category}</p>
+
+          {/* Rating */}
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-yellow-500">⭐ {product.rating.rate}</span>
+            <span className="text-gray-500 text-sm">
+              ({product.rating.count} reviews)
+            </span>
+          </div>
+
           <p className="text-gray-700 mt-4">{product.description}</p>
           {successMessage && (
             <p className="text-green-600 font-semibold mt-2">
@@ -135,12 +131,12 @@ const ProductDetail: React.FC = () => {
               >
                 <img
                   src={p.image}
-                  alt={p.name}
-                  className="w-full h-40 object-cover hover:scale-105 transition-transform duration-300"
+                  alt={p.title}
+                  className="w-full h-40 object-contain hover:scale-105 transition-transform duration-300"
                 />
                 <div className="p-2">
                   <h3 className="text-sm font-semibold text-gray-800">
-                    {p.name}
+                    {p.title}
                   </h3>
                   <p className="text-indigo-600 font-bold">
                     ${p.price.toLocaleString()}

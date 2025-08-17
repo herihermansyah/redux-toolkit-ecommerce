@@ -1,6 +1,6 @@
 // src/features/cart/types.ts
 export interface CartItem {
-  id: string;
+  id: number;
   name: string;
   price: number;
   image: string;

@@ -1,3 +1,4 @@
+// src/features/auth/types.ts
 export interface Coordinates {
   lat: number;
   lng: number;
@@ -41,33 +42,38 @@ export interface Crypto {
 
 export interface User {
   id: number;
-  firstName: string;
-  lastName: string;
-  maidenName: string;
-  age: number;
-  gender: string;
-  email: string;
-  phone: string;
   username: string;
+  email: string;
   password: string;
-  birthDate: string;
-  image: string;
-  bloodGroup: string;
-  height: number;
-  weight: number;
-  eyeColor: string;
-  hair: Hair;
-  ip: string;
-  address: Address;
-  macAddress: string;
-  university: string;
-  bank: Bank;
-  company: Company;
-  ein: string;
-  ssn: string;
-  userAgent: string;
-  crypto: Crypto;
   role: string;
+
+  // profile tambahan (buat user baru via signup)
+  fullName?: string;
+  phone?: string;
+  address?: Address; // 🔥 fix: bukan string lagi
+
+  // dari dummyjson (optional)
+  firstName?: string;
+  lastName?: string;
+  maidenName?: string;
+  age?: number;
+  gender?: string;
+  birthDate?: string;
+  image?: string;
+  bloodGroup?: string;
+  height?: number;
+  weight?: number;
+  eyeColor?: string;
+  hair?: Hair;
+  ip?: string;
+  macAddress?: string;
+  university?: string;
+  bank?: Bank;
+  company?: Company;
+  ein?: string;
+  ssn?: string;
+  userAgent?: string;
+  crypto?: Crypto;
 }
 
 export interface AuthState {
@@ -78,12 +84,12 @@ export interface AuthState {
 }
 
 export interface LoginPayload {
-  email: string;
+  username: string;
   password: string;
 }
 
 export interface SignupPayload {
-  name: string;
+  username: string;
   email: string;
   password: string;
 }

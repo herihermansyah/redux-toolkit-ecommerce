@@ -1,71 +1,62 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../../../app/store";
 import { login } from "../authSlice";
+import type { RootState, AppDispatch } from "../../../app/store";
 import { useNavigate } from "react-router-dom";
 
-export default function LoginForm() {
+const LoginForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const { loading, error, user } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
 
-  const { loading, error, token } = useSelector(
-    (state: RootState) => state.auth
-  );
-
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  // Kalau token ada → redirect ke /profile
-  useEffect(() => {
-    if (token) {
-      navigate("/profile");
-    }
-  }, [token, navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!email.trim() || !password.trim()) {
-      alert("Email dan password tidak boleh kosong");
-      return;
-    }
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
-      alert("Format email tidak valid");
-      return;
-    }
-
-    dispatch(login({ email, password }));
+    dispatch(login({ username, password }));
   };
 
+  useEffect(() => {
+    if (user) {
+      if (user.role === "admin") navigate("/admin");
+      else if (user.role === "moderator") navigate("/moderator");
+      else navigate("/profile");
+    }
+  }, [user, navigate]);
+
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm mx-auto space-y-4">
-      <h2 className="text-xl font-bold text-center">Login</h2>
-
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-sm mx-auto bg-white p-8 rounded-2xl shadow-lg"
+    >
+      <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+      {error && <p className="text-red-500 mb-3">{error}</p>}
       <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Masukkan email"
-        className="w-full border rounded p-2"
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        className="w-full p-3 mb-4 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+        required
       />
-
       <input
         type="password"
+        placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        placeholder="Masukkan password"
-        className="w-full border rounded p-2"
+        className="w-full p-3 mb-4 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+        required
       />
-
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+        className="w-full bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 transition font-semibold"
       >
         {loading ? "Loading..." : "Login"}
       </button>
     </form>
   );
-}
+};
+
+export default LoginForm;

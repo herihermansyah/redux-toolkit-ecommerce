@@ -1,77 +1,72 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { signup } from "../authSlice";
 import type { RootState, AppDispatch } from "../../../app/store";
-import { signup, clearError } from "../authSlice";
+import { useNavigate } from "react-router-dom";
 
 const SignupForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const { loading, error, user } = useSelector((state: RootState) => state.auth);
+  const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(clearError());
-    dispatch(signup(formData));
+    dispatch(signup({ username, email, password }));
   };
+
+  // kalau sudah signup → redirect ke profile
+  useEffect(() => {
+    if (user) {
+      navigate("/profile");
+    }
+  }, [user, navigate]);
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-md mx-auto bg-white shadow-md rounded-xl p-6 space-y-4"
+      className="max-w-sm mx-auto bg-white p-6 rounded-xl shadow"
     >
-      <h2 className="text-2xl font-bold text-center">Sign Up</h2>
+      <h2 className="text-xl font-bold mb-4">Sign Up</h2>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && <p className="text-red-500 mb-2">{error}</p>}
 
       <input
         type="text"
-        name="name"
-        placeholder="Full Name"
-        value={formData.name}
-        onChange={handleChange}
-        className="w-full p-2 border rounded"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        className="w-full p-2 mb-3 border rounded"
         required
       />
 
       <input
         type="email"
-        name="email"
-        placeholder="Email Address"
-        value={formData.email}
-        onChange={handleChange}
-        className="w-full p-2 border rounded"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="w-full p-2 mb-3 border rounded"
         required
       />
 
       <input
         type="password"
-        name="password"
         placeholder="Password"
-        value={formData.password}
-        onChange={handleChange}
-        className="w-full p-2 border rounded"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="w-full p-2 mb-3 border rounded"
         required
       />
 
       <button
         type="submit"
+        className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
         disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
       >
-        {loading ? "Processing..." : "Create Account"}
+        {loading ? "Loading..." : "Sign Up"}
       </button>
     </form>
   );

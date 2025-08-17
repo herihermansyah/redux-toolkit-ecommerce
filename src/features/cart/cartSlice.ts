@@ -4,25 +4,22 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import type { CartItem } from "./types";
 import type { RootState } from "../../app/store";
 
-// Helper: load cart dari localStorage
+// Helpers: LocalStorage
 const loadCartFromLocalStorage = (): CartItem[] => {
   try {
     const serialized = localStorage.getItem("cart");
-    if (serialized === null) return [];
-    return JSON.parse(serialized);
-  } catch (e) {
-    console.error("Failed to load cart from localStorage", e);
+    if (!serialized) return [];
+    return JSON.parse(serialized) as CartItem[];
+  } catch {
     return [];
   }
 };
 
-// Helper: simpan cart ke localStorage
 const saveCartToLocalStorage = (items: CartItem[]) => {
   try {
-    const serialized = JSON.stringify(items);
-    localStorage.setItem("cart", serialized);
+    localStorage.setItem("cart", JSON.stringify(items));
   } catch (e) {
-    console.error("Failed to save cart to localStorage", e);
+    console.error("Save failed", e);
   }
 };
 
@@ -31,7 +28,7 @@ interface CartState {
 }
 
 const initialState: CartState = {
-  items: loadCartFromLocalStorage(), // load saat init
+  items: loadCartFromLocalStorage(),
 };
 
 const cartSlice = createSlice({
@@ -39,9 +36,7 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action: PayloadAction<CartItem>) => {
-      const existing = state.items.find(
-        (item) => item.id === action.payload.id
-      );
+      const existing = state.items.find((i) => i.id === action.payload.id);
       if (existing) {
         existing.quantity += action.payload.quantity;
       } else {
@@ -51,7 +46,7 @@ const cartSlice = createSlice({
     },
     updateQuantity: (
       state,
-      action: PayloadAction<{ id: string; quantity: number }>
+      action: PayloadAction<{ id: number; quantity: number }>
     ) => {
       const item = state.items.find((i) => i.id === action.payload.id);
       if (item) {
@@ -59,7 +54,7 @@ const cartSlice = createSlice({
       }
       saveCartToLocalStorage(state.items);
     },
-    removeFromCart: (state, action: PayloadAction<string>) => {
+    removeFromCart: (state, action: PayloadAction<number>) => {
       state.items = state.items.filter((i) => i.id !== action.payload);
       saveCartToLocalStorage(state.items);
     },
@@ -67,18 +62,26 @@ const cartSlice = createSlice({
       state.items = [];
       saveCartToLocalStorage(state.items);
     },
+    removeSelectedItems: (state, action: PayloadAction<number[]>) => {
+      state.items = state.items.filter(
+        (item) => !action.payload.includes(item.id)
+      );
+      saveCartToLocalStorage(state.items);
+    },
   },
 });
 
-export const { addToCart, updateQuantity, removeFromCart, clearCart } =
-  cartSlice.actions;
+export const {
+  addToCart,
+  updateQuantity,
+  removeFromCart,
+  clearCart,
+  removeSelectedItems,
+} = cartSlice.actions;
 
 export const selectCartItems = (state: RootState) => state.cart.items;
 
 export const selectCartTotal = (state: RootState) =>
-  state.cart.items.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+  state.cart.items.reduce((total, i) => total + i.price * i.quantity, 0);
 
 export default cartSlice.reducer;
