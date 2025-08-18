@@ -14,7 +14,8 @@ export default function AppLayouts() {
     location.pathname === "/login" ||
     location.pathname === "/cart" ||
     location.pathname === "/checkout" ||
-    location.pathname === "/profile";
+    location.pathname === "/profile" ||
+    location.pathname === "/signup";
 
   useEffect(() => {
     setIsLoading(true);

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../app/store";
 import { logout, updateProfile } from "../../features/auth/authSlice";
+import { resetCart } from "../../features/cart/cartSlice"; // ✅ import resetCart
 import type { User } from "../../features/auth/types";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
@@ -14,11 +15,10 @@ const ProfilePage: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState<User>(user as User);
-  const [loading, setLoading] = useState(false); // ✅ loading save & logout
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  // 🔹 Redirect ke login otomatis kalau user null
   useEffect(() => {
     if (!user) {
       navigate("/login");
@@ -34,10 +34,16 @@ const ProfilePage: React.FC = () => {
 
   const handleLogout = () => {
     setLoading(true);
-    setTimeout(() => {
-      dispatch(logout());
-      setLoading(false);
-    }, 300);
+    dispatch(logout())
+      .unwrap() // untuk handle promise dari createAsyncThunk
+      .then(() => {
+        dispatch(resetCart()); // ✅ reset cart setelah logout sukses
+        setLoading(false);
+        navigate("/login"); // redirect ke login
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   };
 
   const handleSave = () => {
@@ -46,15 +52,13 @@ const ProfilePage: React.FC = () => {
       dispatch(updateProfile(formData));
       setEditing(false);
       setLoading(false);
-    }, 300); // ⏳ delay simpan
+    }, 300);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setFormData((prev) => {
-      if (name === "age") {
-        return { ...prev, age: Number(value) };
-      }
+      if (name === "age") return { ...prev, age: Number(value) };
       return { ...prev, [name]: value };
     });
   };
@@ -289,7 +293,7 @@ const ProfilePage: React.FC = () => {
         {/* Logout */}
         <div className="mt-8 text-center">
           <Button
-            onClick={handleLogout}
+            onClick={handleLogout} // ✅ resetCart dipanggil di sini
             variant="danger"
             size="lg"
             isLoading={loading}

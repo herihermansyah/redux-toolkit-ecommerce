@@ -3,11 +3,24 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { CartItem } from "./types";
 import type { RootState } from "../../app/store";
+import { login } from "../auth/authSlice"; // ✅ import login thunk
 
-// Helpers: LocalStorage
+// Ambil username dari auth state
+const getUsername = (): string | null => {
+  try {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user).username : null;
+  } catch {
+    return null;
+  }
+};
+
+// Helpers: LocalStorage per user
 const loadCartFromLocalStorage = (): CartItem[] => {
   try {
-    const serialized = localStorage.getItem("cart");
+    const username = getUsername();
+    if (!username) return [];
+    const serialized = localStorage.getItem(`cart_${username}`);
     if (!serialized) return [];
     return JSON.parse(serialized) as CartItem[];
   } catch {
@@ -17,7 +30,9 @@ const loadCartFromLocalStorage = (): CartItem[] => {
 
 const saveCartToLocalStorage = (items: CartItem[]) => {
   try {
-    localStorage.setItem("cart", JSON.stringify(items));
+    const username = getUsername();
+    if (!username) return;
+    localStorage.setItem(`cart_${username}`, JSON.stringify(items));
   } catch (e) {
     console.error("Save failed", e);
   }
@@ -68,6 +83,21 @@ const cartSlice = createSlice({
       );
       saveCartToLocalStorage(state.items);
     },
+    resetCart: (state) => {
+      state.items = [];
+    },
+  },
+  extraReducers: (builder) => {
+    // 🔹 Load cart dari localStorage sesuai user saat login sukses
+    builder.addCase(login.fulfilled, (state, action) => {
+      const username = action.payload.user.username;
+      try {
+        const serialized = localStorage.getItem(`cart_${username}`);
+        state.items = serialized ? JSON.parse(serialized) : [];
+      } catch {
+        state.items = [];
+      }
+    });
   },
 });
 
@@ -77,6 +107,7 @@ export const {
   removeFromCart,
   clearCart,
   removeSelectedItems,
+  resetCart,
 } = cartSlice.actions;
 
 export const selectCartItems = (state: RootState) => state.cart.items;

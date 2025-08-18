@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import AppLayouts from "./layouts/AppLayouts";
+
 import Home from "./pages/Home";
 import Product from "./pages/ProductList";
 import Category from "./pages/Category";
@@ -7,11 +8,11 @@ import LoginPage from "./features/auth/pages/LoginPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import SignupPage from "./features/auth/pages/SignupPage";
 
-// Tambahan
 import ProductDetailPage from "./pages/ProductDetail";
 import CartPage from "./pages/CartPage";
 import PageCheckout from "./pages/PageCheckout";
 import ProtectedRoute from "./components/protected/ProtectedRoute";
+import Payment from "./pages/Payment";
 
 export default function App() {
   return (
@@ -19,12 +20,10 @@ export default function App() {
       <Route element={<AppLayouts />}>
         <Route path="/" element={<Home />} />
         <Route path="product" element={<Product />} />
-        {/* Detail produk */}
         <Route path="product/:id" element={<ProductDetailPage />} />
-
         <Route path="category" element={<Category />} />
-
-        {/* Cart & Order */}
+        <Route path="login" element={<LoginPage />} />
+        <Route path="signup" element={<SignupPage />} />
         <Route
           path="cart"
           element={
@@ -33,8 +32,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
-        <Route path="login" element={<LoginPage />} />
         <Route
           path="profile"
           element={
@@ -43,9 +40,14 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="signup" element={<SignupPage />} />
-
-        {/* tambahan */}
+        <Route
+          path="payment"
+          element={
+            <ProtectedRoute>
+              <Payment />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="checkout"
           element={

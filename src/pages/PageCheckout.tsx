@@ -40,7 +40,7 @@ const CheckoutPage: React.FC = () => {
       alert("Pesanan sedang diproses");
       dispatch(removeSelectedItems(checkoutItems.map((i) => i.id)));
       setLoading(false);
-      navigate("/cart");
+      navigate("/payment");
     }, 300); // ⏳ delay 300ms untuk loading
   };
 
@@ -105,12 +105,6 @@ const CheckoutPage: React.FC = () => {
         <p className="text-lg font-semibold mb-4">
           Total Pembayaran: Rp {totalPrice.toLocaleString()}
         </p>
-        <div className="bg-gray-100 p-4 rounded-lg">
-          <p className="font-semibold">Pembayaran via Rekening:</p>
-          <p>a/n Herman</p>
-          <p>No Rek: 1010101010</p>
-          <p>Bank: Redux Bank</p>
-        </div>
       </div>
 
       <Button
