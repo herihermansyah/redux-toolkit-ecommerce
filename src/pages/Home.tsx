@@ -36,14 +36,14 @@ export default function Home() {
     }
   }, [products]);
 
-  if (status === "loading") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500"></div>
-        <p className="ml-4 text-lg text-gray-700">Loading products...</p>
-      </div>
-    );
-  }
+  // if (status === "loading") {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen bg-gray-50">
+  //       <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500"></div>
+  //       <p className="ml-4 text-lg text-gray-700">Loading products...</p>
+  //     </div>
+  //   );
+  // }
 
   if (status === "failed") {
     return (

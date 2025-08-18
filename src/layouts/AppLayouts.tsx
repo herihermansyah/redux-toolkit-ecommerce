@@ -10,6 +10,12 @@ export default function AppLayouts() {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
 
+  const hideElement =
+    location.pathname === "/login" ||
+    location.pathname === "/cart" ||
+    location.pathname === "/checkout" ||
+    location.pathname === "/profile";
+
   useEffect(() => {
     setIsLoading(true);
     const timer = setTimeout(() => {
@@ -22,12 +28,8 @@ export default function AppLayouts() {
     <div className="flex flex-col min-h-screen justify-between">
       {isLoading && <Loader icon={<LoaderIcon />} size={50} fullscreen />}
       <header className="sticky top-0 z-50 py-2 shadow-md bg-white flex items-center justify-between">
-        <div className="flex-11/12">
-          <Search />
-        </div>
-        <div>
-          <CartNavigation />
-        </div>
+        <div className="flex-11/12">{!hideElement && <Search />}</div>
+        <div>{!hideElement && <CartNavigation />}</div>
       </header>
       <main className="flex-1">
         <Outlet />

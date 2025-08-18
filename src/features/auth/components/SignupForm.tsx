@@ -3,10 +3,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { signup } from "../authSlice";
 import type { RootState, AppDispatch } from "../../../app/store";
 import { useNavigate } from "react-router-dom";
+import Input from "../../../components/ui/Input";
+import Button from "../../../components/ui/Button";
+import { User, Mail, Lock, UserPlus } from "lucide-react";
 
 const SignupForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, user } = useSelector((state: RootState) => state.auth);
+  const { loading, error, user } = useSelector(
+    (state: RootState) => state.auth
+  );
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -28,46 +33,51 @@ const SignupForm: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-sm mx-auto bg-white p-6 rounded-xl shadow"
+      className="max-w-sm mx-auto flex flex-col gap-4 bg-white p-6 rounded-xl shadow"
     >
       <h2 className="text-xl font-bold mb-4">Sign Up</h2>
 
       {error && <p className="text-red-500 mb-2">{error}</p>}
 
-      <input
+      {/* Input Username */}
+      <Input
         type="text"
         placeholder="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-        className="w-full p-2 mb-3 border rounded"
+        leftIcon={<User className="w-5 h-5 text-gray-400" />}
         required
       />
 
-      <input
+      {/* Input Email */}
+      <Input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="w-full p-2 mb-3 border rounded"
+        leftIcon={<Mail className="w-5 h-5 text-gray-400" />}
         required
       />
 
-      <input
+      {/* Input Password */}
+      <Input
         type="password"
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        className="w-full p-2 mb-3 border rounded"
+        leftIcon={<Lock className="w-5 h-5 text-gray-400" />}
         required
       />
 
-      <button
+      {/* Button Sign Up */}
+      <Button
         type="submit"
-        className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
-        disabled={loading}
+        isLoading={loading}
+        leftIcon={<UserPlus className="w-5 h-5" />}
+        className="mt-4 w-full"
       >
-        {loading ? "Loading..." : "Sign Up"}
-      </button>
+        Sign Up
+      </Button>
     </form>
   );
 };

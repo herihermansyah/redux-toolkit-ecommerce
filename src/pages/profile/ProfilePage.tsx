@@ -1,5 +1,5 @@
 // src/pages/ProfilePage.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../app/store";
 import { logout, updateProfile } from "../../features/auth/authSlice";
@@ -7,13 +7,23 @@ import type { User } from "../../features/auth/types";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import { Edit2, Save, X, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.auth.user);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState<User>(user as User);
-  const [loading, setLoading] = useState(false); // ✅ loading save
+  const [loading, setLoading] = useState(false); // ✅ loading save & logout
+
+  const navigate = useNavigate();
+
+  // 🔹 Redirect ke login otomatis kalau user null
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   if (!user)
     return (
@@ -36,7 +46,7 @@ const ProfilePage: React.FC = () => {
       dispatch(updateProfile(formData));
       setEditing(false);
       setLoading(false);
-    }, 300); // ⏳ delay 300ms
+    }, 300); // ⏳ delay simpan
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {

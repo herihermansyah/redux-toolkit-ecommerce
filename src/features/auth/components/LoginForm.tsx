@@ -3,10 +3,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { login } from "../authSlice";
 import type { RootState, AppDispatch } from "../../../app/store";
 import { useNavigate } from "react-router-dom";
+import Input from "../../../components/ui/Input";
+import Button from "../../../components/ui/Button";
+import { User, Lock, LogIn } from "lucide-react"; // lucide icon
 
 const LoginForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, user } = useSelector((state: RootState) => state.auth);
+  const { loading, error, user } = useSelector(
+    (state: RootState) => state.auth
+  );
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -28,33 +33,40 @@ const LoginForm: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-sm mx-auto bg-white p-8 rounded-2xl shadow-lg"
+      className="max-w-sm mx-auto bg-white p-8 rounded-2xl shadow-lg flex flex-col gap-3"
     >
       <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
       {error && <p className="text-red-500 mb-3">{error}</p>}
-      <input
+
+      {/* Input Username dengan icon lucide */}
+      <Input
         type="text"
         placeholder="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-        className="w-full p-3 mb-4 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+        leftIcon={<User className="w-5 h-5 text-gray-400" />}
         required
       />
-      <input
+
+      {/* Input Password dengan icon lucide */}
+      <Input
         type="password"
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        className="w-full p-3 mb-4 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+        leftIcon={<Lock className="w-5 h-5 text-gray-400" />}
         required
       />
-      <button
+
+      {/* Button Login dengan icon lucide */}
+      <Button
         type="submit"
-        disabled={loading}
-        className="w-full bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 transition font-semibold"
+        isLoading={loading}
+        leftIcon={<LogIn className="w-5 h-5" />}
+        className="mt-4 w-full"
       >
-        {loading ? "Loading..." : "Login"}
-      </button>
+        Login
+      </Button>
     </form>
   );
 };

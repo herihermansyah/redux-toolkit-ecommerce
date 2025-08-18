@@ -33,15 +33,16 @@ const menuIcon: IconType[] = [
   {
     id: 4,
     name: "Profile",
-    path: "login",
+    path: "profile",
     iconClass: "material-symbols-outlined",
     iconName: "person",
   },
 ];
 
+
 function MenuItem({ item }: { item: IconType }) {
   return (
-    <li className="flex-1">
+    <li className="flex-1 flex flex-col items-center justify-center ">
       <Link
         to={item.path}
         className="flex flex-col items-center justify-center text-sm font-medium"
@@ -57,6 +58,7 @@ function MenuItem({ item }: { item: IconType }) {
     </li>
   );
 }
+
 
 export default function MenuNavigation() {
   return (
