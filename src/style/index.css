@@ -2,3 +2,6 @@
 
 @import "./reset.css";
 @import "./variables.css";
+
+@import "swiper/css";
+@import "swiper/css/autoplay";

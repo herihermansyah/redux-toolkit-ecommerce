@@ -4,6 +4,7 @@ import MenuNavigation from "../features/navigation/MenuNavigation";
 import Search from "../features/navigation/SearchNavigation";
 import Loader from "../components/ui/Loader";
 import { LoaderPinwheel as LoaderIcon } from "lucide-react";
+import CartNavigation from "../features/navigation/CartNavigation";
 
 export default function AppLayouts() {
   const location = useLocation();
@@ -20,8 +21,13 @@ export default function AppLayouts() {
   return (
     <div className="flex flex-col min-h-screen justify-between">
       {isLoading && <Loader icon={<LoaderIcon />} size={50} fullscreen />}
-      <header className="sticky top-0 z-50 py-2 shadow-md bg-white">
-        <Search />
+      <header className="sticky top-0 z-50 py-2 shadow-md bg-white flex items-center justify-between">
+        <div className="flex-11/12">
+          <Search />
+        </div>
+        <div>
+          <CartNavigation />
+        </div>
       </header>
       <main className="flex-1">
         <Outlet />

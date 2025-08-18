@@ -8,12 +8,15 @@ import {
 } from "../features/product/productSlice";
 import { addToCart } from "../features/cart/cartSlice";
 import type { AppDispatch, RootState } from "../app/store";
+import Button from "../components/ui/Button";
+import { ShoppingCart } from "lucide-react";
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState("");
+  const [loading, setLoading] = useState(false); // ✅ loading button
 
   const products = useSelector(selectFilteredProducts);
   const status = useSelector((state: RootState) => state.product.status);
@@ -49,19 +52,23 @@ const ProductDetail: React.FC = () => {
     );
 
   const handleAddToCart = () => {
-    dispatch(
-      addToCart({
-        id: product.id,
-        name: product.title,
-        price: product.price,
-        image: product.image,
-        quantity,
-      })
-    );
-    setSuccessMessage("Produk berhasil ditambahkan ke keranjang");
+    setLoading(true);
     setTimeout(() => {
-      navigate("/cart");
-    }, 1000);
+      dispatch(
+        addToCart({
+          id: product.id,
+          name: product.title,
+          price: product.price,
+          image: product.image,
+          quantity,
+        })
+      );
+      setSuccessMessage("Produk berhasil ditambahkan ke keranjang");
+      setLoading(false);
+      setTimeout(() => {
+        navigate("/cart");
+      }, 500); // navigasi setelah success message
+    }, 300); // ⏳ delay 300ms
   };
 
   return (
@@ -108,12 +115,15 @@ const ProductDetail: React.FC = () => {
               onChange={(e) => setQuantity(Number(e.target.value))}
               className="w-20 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
-            <button
+            <Button
               onClick={handleAddToCart}
-              className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow hover:bg-indigo-700 transition-colors duration-300"
+              variant="primary"
+              size="lg"
+              leftIcon={<ShoppingCart size={20} />}
+              isLoading={loading}
             >
               Add to Cart
-            </button>
+            </Button>
           </div>
         </div>
       </div>

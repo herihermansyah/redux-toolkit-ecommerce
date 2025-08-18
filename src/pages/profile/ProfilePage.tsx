@@ -1,14 +1,19 @@
+// src/pages/ProfilePage.tsx
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState, AppDispatch } from "../../app/store";
 import { logout, updateProfile } from "../../features/auth/authSlice";
 import type { User } from "../../features/auth/types";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import { Edit2, Save, X, LogOut } from "lucide-react";
 
 const ProfilePage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.auth.user);
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState<User>(user as User);
+  const [loading, setLoading] = useState(false); // ✅ loading save
 
   if (!user)
     return (
@@ -18,18 +23,24 @@ const ProfilePage: React.FC = () => {
     );
 
   const handleLogout = () => {
-    dispatch(logout());
+    setLoading(true);
+    setTimeout(() => {
+      dispatch(logout());
+      setLoading(false);
+    }, 300);
   };
 
   const handleSave = () => {
-    dispatch(updateProfile(formData));
-    setEditing(false);
+    setLoading(true);
+    setTimeout(() => {
+      dispatch(updateProfile(formData));
+      setEditing(false);
+      setLoading(false);
+    }, 300); // ⏳ delay 300ms
   };
 
-  // ✅ update field primitif
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
-
     setFormData((prev) => {
       if (name === "age") {
         return { ...prev, age: Number(value) };
@@ -38,10 +49,7 @@ const ProfilePage: React.FC = () => {
     });
   };
 
-  // ✅ khusus address (nested)
-  const handleAddressChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -73,32 +81,38 @@ const ProfilePage: React.FC = () => {
           <div className="flex-1">
             {editing ? (
               <div className="flex gap-2 flex-wrap">
-                <input
+                <Input
                   name="firstName"
                   value={formData.firstName || ""}
                   onChange={handleChange}
-                  className="border px-2 py-1 rounded w-1/2"
                   placeholder="Nama Depan"
+                  leftIcon={<Edit2 size={16} />}
                 />
-                <input
+                <Input
                   name="lastName"
                   value={formData.lastName || ""}
                   onChange={handleChange}
-                  className="border px-2 py-1 rounded w-1/2"
                   placeholder="Nama Belakang"
+                  leftIcon={<Edit2 size={16} />}
                 />
-                <button
+                <Button
                   onClick={handleSave}
-                  className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700"
+                  variant="primary"
+                  size="md"
+                  leftIcon={<Save size={16} />}
+                  isLoading={loading}
                 >
                   Simpan
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setEditing(false)}
-                  className="bg-gray-400 text-white px-4 py-1 rounded hover:bg-gray-500"
+                  variant="secondary"
+                  size="md"
+                  leftIcon={<X size={16} />}
+                  disabled={loading}
                 >
                   Batal
-                </button>
+                </Button>
               </div>
             ) : (
               <>
@@ -116,12 +130,14 @@ const ProfilePage: React.FC = () => {
             )}
           </div>
           {!editing && (
-            <button
+            <Button
               onClick={() => setEditing(true)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+              variant="primary"
+              size="md"
+              leftIcon={<Edit2 size={16} />}
             >
               Edit Profil
-            </button>
+            </Button>
           )}
         </div>
 
@@ -132,37 +148,33 @@ const ProfilePage: React.FC = () => {
             <h2 className="font-semibold text-lg mb-2">Informasi Pribadi</h2>
             {editing ? (
               <div className="space-y-2">
-                <input
+                <Input
                   type="text"
                   name="phone"
                   value={formData.phone || ""}
                   onChange={handleChange}
                   placeholder="No. HP"
-                  className="border px-2 py-1 rounded w-full"
                 />
-                <input
+                <Input
                   type="number"
                   name="age"
                   value={formData.age?.toString() || ""}
                   onChange={handleChange}
                   placeholder="Usia"
-                  className="border px-2 py-1 rounded w-full"
                 />
-                <input
+                <Input
                   type="text"
                   name="gender"
                   value={formData.gender || ""}
                   onChange={handleChange}
                   placeholder="Gender"
-                  className="border px-2 py-1 rounded w-full"
                 />
-                <input
+                <Input
                   type="text"
                   name="birthDate"
                   value={formData.birthDate || ""}
                   onChange={handleChange}
                   placeholder="Tanggal Lahir"
-                  className="border px-2 py-1 rounded w-full"
                 />
               </div>
             ) : (
@@ -183,37 +195,33 @@ const ProfilePage: React.FC = () => {
             <h2 className="font-semibold text-lg mb-2">Alamat</h2>
             {editing ? (
               <div className="space-y-2">
-                <input
+                <Input
                   type="text"
                   name="address"
                   value={formData.address?.address || ""}
                   onChange={handleAddressChange}
                   placeholder="Alamat"
-                  className="border px-2 py-1 rounded w-full"
                 />
-                <input
+                <Input
                   type="text"
                   name="city"
                   value={formData.address?.city || ""}
                   onChange={handleAddressChange}
                   placeholder="Kota"
-                  className="border px-2 py-1 rounded w-full"
                 />
-                <input
+                <Input
                   type="text"
                   name="state"
                   value={formData.address?.state || ""}
                   onChange={handleAddressChange}
                   placeholder="Provinsi"
-                  className="border px-2 py-1 rounded w-full"
                 />
-                <input
+                <Input
                   type="text"
                   name="country"
                   value={formData.address?.country || ""}
                   onChange={handleAddressChange}
                   placeholder="Negara"
-                  className="border px-2 py-1 rounded w-full"
                 />
               </div>
             ) : (
@@ -232,33 +240,29 @@ const ProfilePage: React.FC = () => {
             <h2 className="font-semibold text-lg mb-2">Data Tambahan</h2>
             {editing ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <input
+                <Input
                   name="university"
                   value={formData.university || ""}
                   onChange={handleChange}
                   placeholder="Universitas"
-                  className="border px-2 py-1 rounded w-full"
                 />
-                <input
+                <Input
                   name="ein"
                   value={formData.ein || ""}
                   onChange={handleChange}
                   placeholder="EIN"
-                  className="border px-2 py-1 rounded w-full"
                 />
-                <input
+                <Input
                   name="ssn"
                   value={formData.ssn || ""}
                   onChange={handleChange}
                   placeholder="SSN"
-                  className="border px-2 py-1 rounded w-full"
                 />
-                <input
+                <Input
                   name="ip"
                   value={formData.ip || ""}
                   onChange={handleChange}
                   placeholder="IP Address"
-                  className="border px-2 py-1 rounded w-full"
                 />
               </div>
             ) : (
@@ -274,12 +278,15 @@ const ProfilePage: React.FC = () => {
 
         {/* Logout */}
         <div className="mt-8 text-center">
-          <button
+          <Button
             onClick={handleLogout}
-            className="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700 font-semibold"
+            variant="danger"
+            size="lg"
+            isLoading={loading}
+            leftIcon={<LogOut size={18} />}
           >
             Logout
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -15,6 +15,7 @@ interface ProductState {
   products: Product[];
   filteredProducts: Product[];
   categories: string[];
+  searchTerm: string; // ✅ tambahkan searchTerm
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -23,6 +24,7 @@ const initialState: ProductState = {
   products: [],
   filteredProducts: [],
   categories: [],
+  searchTerm: "", // initial
   status: "idle",
   error: null,
 };
@@ -32,17 +34,42 @@ const productSlice = createSlice({
   initialState,
   reducers: {
     filterByCategory: (state, action: { payload: string }) => {
-      if (action.payload === "all") {
-        state.filteredProducts = state.products;
-      } else {
-        state.filteredProducts = state.products.filter(
-          (p) => p.category === action.payload
+      const category = action.payload;
+
+      // filter berdasarkan kategori
+      let filtered =
+        category === "all"
+          ? state.products
+          : state.products.filter((p) => p.category === category);
+
+      // jika searchTerm ada, filter lagi berdasarkan title atau description
+      if (state.searchTerm) {
+        const term = state.searchTerm.toLowerCase();
+        filtered = filtered.filter(
+          (p) =>
+            p.title.toLowerCase().includes(term) ||
+            p.description.toLowerCase().includes(term)
         );
       }
+
+      state.filteredProducts = filtered;
     },
+
     sortByPrice: (state, action: { payload: "asc" | "desc" }) => {
       state.filteredProducts.sort((a, b) =>
         action.payload === "asc" ? a.price - b.price : b.price - a.price
+      );
+    },
+
+    setSearchTerm: (state, action: { payload: string }) => {
+      state.searchTerm = action.payload;
+
+      const term = action.payload.toLowerCase();
+      // filter berdasarkan searchTerm
+      state.filteredProducts = state.products.filter(
+        (p) =>
+          p.title.toLowerCase().includes(term) ||
+          p.description.toLowerCase().includes(term)
       );
     },
   },
@@ -58,7 +85,7 @@ const productSlice = createSlice({
 
         const cats = new Set<string>();
         action.payload.forEach((p) => cats.add(p.category));
-        state.categories = Array.from(cats); // simpan kategori asli (tanpa replace)
+        state.categories = Array.from(cats); // simpan kategori asli
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.status = "failed";
@@ -67,10 +94,12 @@ const productSlice = createSlice({
   },
 });
 
-export const { filterByCategory, sortByPrice } = productSlice.actions;
+export const { filterByCategory, sortByPrice, setSearchTerm } =
+  productSlice.actions;
 
 export const selectFilteredProducts = (state: RootState) =>
   state.product.filteredProducts;
 export const selectCategories = (state: RootState) => state.product.categories;
+export const selectSearchTerm = (state: RootState) => state.product.searchTerm;
 
 export default productSlice.reducer;

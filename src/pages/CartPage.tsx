@@ -9,6 +9,8 @@ import {
 import type { RootState, AppDispatch } from "../app/store";
 import type { CartItem } from "../features/cart/types";
 import { useNavigate } from "react-router-dom";
+import Button from "../components/ui/Button"; // ✅ Button custom
+import { Trash, ShoppingCart } from "lucide-react"; // ✅ import icon checkout
 
 const CartPage: React.FC = () => {
   const items = useSelector((state: RootState) => selectCartItems(state));
@@ -16,6 +18,8 @@ const CartPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [loadingIds, setLoadingIds] = useState<number[]>([]);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const handleQuantityChange = (id: number, newQty: number) => {
     if (newQty > 0) {
@@ -35,8 +39,20 @@ const CartPage: React.FC = () => {
       alert("Pilih minimal 1 produk untuk checkout");
       return;
     }
-    navigate("/checkout", { state: { checkoutItems } });
-    setSelectedItems([]);
+   setCheckoutLoading(true)
+    setTimeout(() => {
+      navigate("/checkout", { state: { checkoutItems } });
+      setSelectedItems([]);
+      setCheckoutLoading(false)
+    }, 500);
+  };
+
+  const handleDelete = (id: number) => {
+    setLoadingIds((prev) => [...prev, id]);
+    setTimeout(() => {
+      dispatch(removeFromCart(id));
+      setLoadingIds((prev) => prev.filter((lid) => lid !== id));
+    }, 200); // ⏳ delay 200ms sebelum hapus
   };
 
   const totalQuantity = items
@@ -65,12 +81,9 @@ const CartPage: React.FC = () => {
               index % 2 === 0 ? "bg-blue-50" : "bg-pink-50"
             }`}
           >
-            {/* Nama produk selalu 1 baris */}
             <h2 className="truncate font-semibold text-lg mb-3">{item.name}</h2>
 
-            {/* Isi baris: gambar + harga + kontrol */}
             <div className="flex items-center justify-between">
-              {/* Kiri: checkbox + gambar */}
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -85,52 +98,47 @@ const CartPage: React.FC = () => {
               </div>
 
               <div>
-                <div>
-                  <div>
-                    {/* Kanan: quantity + hapus */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        className="px-2 py-1 bg-gray-200 rounded"
-                        onClick={() =>
-                          handleQuantityChange(item.id, item.quantity - 1)
-                        }
-                      >
-                        -
-                      </button>
-                      <span className="font-semibold">{item.quantity}</span>
-                      <button
-                        className="px-2 py-1 bg-gray-200 rounded"
-                        onClick={() =>
-                          handleQuantityChange(item.id, item.quantity + 1)
-                        }
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-gray-700 font-medium whitespace-nowrap">
-                      Rp {(item.price * item.quantity).toLocaleString()}
-                    </p>
-                  </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <button
+                    className="px-2 py-1 bg-gray-200 rounded"
+                    onClick={() =>
+                      handleQuantityChange(item.id, item.quantity - 1)
+                    }
+                  >
+                    -
+                  </button>
+                  <span className="font-semibold">{item.quantity}</span>
+                  <button
+                    className="px-2 py-1 bg-gray-200 rounded"
+                    onClick={() =>
+                      handleQuantityChange(item.id, item.quantity + 1)
+                    }
+                  >
+                    +
+                  </button>
                 </div>
-
-                {/* Tengah: harga (selalu satu baris) */}
+                <p className="text-gray-700 font-medium whitespace-nowrap">
+                  Rp {(item.price * item.quantity).toLocaleString()}
+                </p>
               </div>
+
+              {/* ✅ Button hapus custom */}
               <div>
-                <button
-                  className="px-3 py-1 bg-red-500 text-white rounded"
-                  onClick={() => dispatch(removeFromCart(item.id))}
+                <Button
+                  variant="danger"
+                  size="md"
+                  rightIcon={<Trash size={16} />}
+                  isLoading={loadingIds.includes(item.id)}
+                  onClick={() => handleDelete(item.id)}
                 >
-                  Hapus
-                </button>
+                  Delete
+                </Button>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Ringkasan total dari item yang dicentang */}
       {selectedItems.length > 0 && (
         <div className="mt-6 p-4 bg-gray-100 rounded-lg shadow">
           <p className="text-lg font-semibold">Total Produk: {totalQuantity}</p>
@@ -140,12 +148,17 @@ const CartPage: React.FC = () => {
         </div>
       )}
 
-      <button
+      {/* ✅ Tombol checkout custom dengan icon */}
+      <Button
+        variant="primary"
+        size="lg"
+        leftIcon={<ShoppingCart size={20} />}
         onClick={handleCheckout}
-        className="mt-6 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700"
+        isLoading={checkoutLoading}
+        className="mt-6 w-full justify-center"
       >
         Checkout
-      </button>
+      </Button>
     </div>
   );
 };

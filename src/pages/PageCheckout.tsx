@@ -1,5 +1,5 @@
 // src/pages/CheckoutPage.tsx
-import React from "react";
+import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   removeSelectedItems,
@@ -8,19 +8,18 @@ import {
 import type { AppDispatch, RootState } from "../app/store";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { CartItem } from "../features/cart/types";
+import Button from "../components/ui/Button";
+import { CreditCard } from "lucide-react";
 
 const CheckoutPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
+  const [loading, setLoading] = useState(false); // ✅ loading button
 
-  // ✅ Hook dipanggil di top-level
   const cartItems = useSelector((state: RootState) => selectCartItems(state));
-
-  // ✅ user login
   const user = useSelector((state: RootState) => state.auth.user);
 
-  // ✅ Baru fallback ke redux kalau state kosong
   const checkoutItems: CartItem[] =
     (location.state as { checkoutItems?: CartItem[] })?.checkoutItems ??
     cartItems;
@@ -36,9 +35,13 @@ const CheckoutPage: React.FC = () => {
   );
 
   const handlePayNow = () => {
-    alert("Pesanan sedang diproses");
-    dispatch(removeSelectedItems(checkoutItems.map((i) => i.id)));
-    navigate("/cart");
+    setLoading(true);
+    setTimeout(() => {
+      alert("Pesanan sedang diproses");
+      dispatch(removeSelectedItems(checkoutItems.map((i) => i.id)));
+      setLoading(false);
+      navigate("/cart");
+    }, 300); // ⏳ delay 300ms untuk loading
   };
 
   if (checkoutItems.length === 0) {
@@ -53,7 +56,7 @@ const CheckoutPage: React.FC = () => {
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Konfirmasi Pesanan</h1>
 
-      {/* ✅ Tambahan: Data User */}
+      {/* Data User */}
       <div className="p-4 border rounded-lg shadow mb-6 bg-gray-50">
         <h2 className="font-semibold text-lg mb-2">Data Penerima</h2>
         <p>
@@ -66,13 +69,10 @@ const CheckoutPage: React.FC = () => {
         </p>
         <p>
           <span className="font-medium">Alamat: </span>
-          {user?.address?.address || "-"},{" "}
-          {user?.address?.city || "-"},{" "}
-          {user?.address?.state || "-"},{" "}
-          {user?.address?.country || "-"}
+          {user?.address?.address || "-"}, {user?.address?.city || "-"},{" "}
+          {user?.address?.state || "-"}, {user?.address?.country || "-"}
         </p>
       </div>
-      {/* ✅ End Tambahan */}
 
       <div className="flex flex-col gap-4 mb-6">
         {checkoutItems.map((item) => (
@@ -113,12 +113,16 @@ const CheckoutPage: React.FC = () => {
         </div>
       </div>
 
-      <button
+      <Button
         onClick={handlePayNow}
-        className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700"
+        variant="primary"
+        size="lg"
+        leftIcon={<CreditCard size={20} />}
+        isLoading={loading}
+        className="w-full"
       >
         Bayar Sekarang
-      </button>
+      </Button>
     </div>
   );
 };
