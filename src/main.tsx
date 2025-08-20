@@ -6,11 +6,10 @@ import { store } from "./app/store.ts";
 import "./style/index.css";
 import App from "./App.tsx";
 
-
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
+      <BrowserRouter basename="/redux-toolkit-ecommerce">
         <App />
       </BrowserRouter>
     </Provider>

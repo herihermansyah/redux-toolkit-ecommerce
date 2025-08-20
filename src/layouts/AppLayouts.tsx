@@ -17,6 +17,8 @@ export default function AppLayouts() {
     location.pathname === "/profile" ||
     location.pathname === "/signup";
 
+  const hideMenu = location.pathname === "/payment";
+
   useEffect(() => {
     setIsLoading(true);
     const timer = setTimeout(() => {
@@ -36,7 +38,7 @@ export default function AppLayouts() {
         <Outlet />
       </main>
       <footer className="sticky bottom-0 z-50 py-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1),0_-2px_4px_-2px_rgba(0,0,0,0.1)] bg-white">
-        <MenuNavigation />
+        {!hideMenu && <MenuNavigation />}
       </footer>
     </div>
   );
