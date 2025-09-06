@@ -9,7 +9,7 @@ import App from "./App.tsx";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <BrowserRouter basename="/redux-toolkit-ecommerce">
+      <BrowserRouter>
         <App />
       </BrowserRouter>
     </Provider>
